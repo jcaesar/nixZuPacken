@@ -63,6 +63,10 @@ in
         ++ lib.optionals useCuda [
           "-DGPU_RUNTIME=CUDA"
           "-DCUDA_TOOLKIT_ROOT_DIR=${cudaPackages.cudatoolkit}"
+          # To avoid: forward.cu(411): error: calling a constexpr __host__ function("min") from a __device__ function("project_cov3d_ewa") is not allowed. The experimental flag '--expt-relaxed-constexpr' can be used to allow this.
+          "-DCMAKE_CUDA_FLAGS=--expt-relaxed-constexpr"
+          # To avoid: /nix/store/imajhva2ms4zci9gr2znhij3bdbwdm3i-libtorch-2.0.0-dev/include/c10/cuda/CUDAMacros.h:8:10: fatal error: c10/cuda/impl/cuda_cmake_macros.h: No such file or directory
+          "-DCMAKE_CXX_FLAGS=-DC10_CUDA_NO_CMAKE_CONFIGURE_FILE"
         ]
         ++ cmakeFlags;
 
