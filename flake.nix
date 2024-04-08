@@ -11,12 +11,31 @@
     flake-utils.lib.eachDefaultSystem
     (
       system: let
-        pkgs = import nixpkgs {inherit system;};
-      in rec {
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [packages.default];
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
         };
-        packages.default = pkgs.callPackage ./. {};
+        callPackage = pkgs.lib.callPackageWith packages;
+        packages =
+          pkgs
+          // {
+            gsplat = callPackage ./gsplat.nix {};
+            opensplat = callPackage ./opensplat.nix {};
+            opensplatWithCuda = packages.opensplat.override {gpuBackend = "CUDA";};
+            opensplatWithRocm = packages.opensplat.override {gpuBackend = "HIP";};
+            default = packages.opensplat;
+          };
+      in rec {
+        inherit packages;
+        devShells.cuda = pkgs.mkShell {
+          inputsFrom = [packages.opensplatWithCuda];
+        };
+        devShells.hip = pkgs.mkShell {
+          inputsFrom = [packages.opensplatWithRocm];
+        };
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [packages.opensplat];
+        };
       }
     );
 }

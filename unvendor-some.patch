@@ -1,0 +1,154 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 806c4f2..993dc4a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -126,7 +126,12 @@ target_include_directories(gsplat_cpu PRIVATE ${TORCH_INCLUDE_DIRS})
+ 
+ add_executable(opensplat opensplat.cpp point_io.cpp nerfstudio.cpp model.cpp kdtree_tensor.cpp spherical_harmonics.cpp cv_utils.cpp utils.cpp project_gaussians.cpp rasterize_gaussians.cpp ssim.cpp optim_scheduler.cpp colmap.cpp opensfm.cpp input_data.cpp tensor_math.cpp)
+ set_property(TARGET opensplat PROPERTY CXX_STANDARD 17)
+-target_include_directories(opensplat PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glm ${GPU_INCLUDE_DIRS})
++target_include_directories(opensplat PRIVATE
++    ${PROJECT_SOURCE_DIR}/vendor/glm
++    ${PROJECT_SOURCE_DIR}/vendor/nanoflann
++    ${PROJECT_SOURCE_DIR}/vendor 
++    ${GPU_INCLUDE_DIRS}
++)
+ target_link_libraries(opensplat PUBLIC ${STDPPFS_LIBRARY} ${GPU_LIBRARIES} ${GSPLAT_LIBS} ${TORCH_LIBRARIES} ${OpenCV_LIBS})
+ if (NOT WIN32)
+     target_link_libraries(opensplat PUBLIC pthread)
+diff --git a/kdtree_tensor.hpp b/kdtree_tensor.hpp
+index d6f6015..f6ddf01 100644
+--- a/kdtree_tensor.hpp
++++ b/kdtree_tensor.hpp
+@@ -2,7 +2,7 @@
+ #define KDTREE_TENSOR
+ 
+ #include <torch/torch.h>
+-#include "vendor/nanoflann/nanoflann.hpp"
++#include <nanoflann.hpp>
+ 
+ struct PointsTensor {
+     torch::Tensor tensor;
+@@ -52,4 +52,4 @@ using KdTreeTensor = nanoflann::KDTreeSingleIndexAdaptor<
+     PointsTensor, 3, size_t
+ >;
+ 
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/nerfstudio.cpp b/nerfstudio.cpp
+index 52264cc..f82d111 100644
+--- a/nerfstudio.cpp
++++ b/nerfstudio.cpp
+@@ -1,6 +1,6 @@
+ #include <filesystem>
+ #include <cstdlib>
+-#include "vendor/json/json.hpp"
++#include <nlohmann/json.hpp>
+ #include "nerfstudio.hpp"
+ #include "point_io.hpp"
+ #include "cv_utils.hpp"
+diff --git a/nerfstudio.hpp b/nerfstudio.hpp
+index 9ceb352..7b67d5c 100644
+--- a/nerfstudio.hpp
++++ b/nerfstudio.hpp
+@@ -5,8 +5,8 @@
+ #include <string>
+ #include <fstream>
+ #include <torch/torch.h>
++#include <nlohmann/json_fwd.hpp>
+ #include "input_data.hpp"
+-#include "vendor/json/json_fwd.hpp"
+ 
+ using json = nlohmann::json;
+ 
+@@ -47,4 +47,4 @@ namespace ns{
+ 
+ 
+ 
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/opensfm.cpp b/opensfm.cpp
+index 5f7c53d..bca420f 100644
+--- a/opensfm.cpp
++++ b/opensfm.cpp
+@@ -1,6 +1,6 @@
+ #include <filesystem>
+ #include <cstdlib>
+-#include "vendor/json/json.hpp"
++#include <nlohmann/json.hpp>
+ #include "opensfm.hpp"
+ #include "point_io.hpp"
+ #include "cv_utils.hpp"
+@@ -150,4 +150,4 @@ InputData inputDataFromOpenSfM(const std::string &projectRoot){
+     return ret;
+ }
+ 
+-}
+\ No newline at end of file
++}
+diff --git a/opensfm.hpp b/opensfm.hpp
+index 34c6e38..8edf0de 100644
+--- a/opensfm.hpp
++++ b/opensfm.hpp
+@@ -6,8 +6,8 @@
+ #include <fstream>
+ #include <unordered_map>
+ #include <torch/torch.h>
++#include <nlohmann/json_fwd.hpp>
+ #include "input_data.hpp"
+-#include "vendor/json/json_fwd.hpp"
+ 
+ using json = nlohmann::json;
+ 
+@@ -51,4 +51,4 @@ namespace osfm{
+     InputData inputDataFromOpenSfM(const std::string &projectRoot);
+ }   
+ 
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/opensplat.cpp b/opensplat.cpp
+index 180e864..a6e9e74 100644
+--- a/opensplat.cpp
++++ b/opensplat.cpp
+@@ -1,10 +1,10 @@
+ #include <filesystem>
+-#include "vendor/json/json.hpp"
++#include <nlohmann/json.hpp>
+ #include "opensplat.hpp"
+ #include "input_data.hpp"
+ #include "utils.hpp"
+ #include "cv_utils.hpp"
+-#include "vendor/cxxopts.hpp"
++#include <cxxopts.hpp>
+ 
+ namespace fs = std::filesystem;
+ using namespace torch::indexing;
+diff --git a/point_io.hpp b/point_io.hpp
+index a2d79f7..3982a00 100644
+--- a/point_io.hpp
++++ b/point_io.hpp
+@@ -12,7 +12,7 @@
+ #include <pdal/io/BufferReader.hpp>
+ #endif
+ 
+-#include "vendor/nanoflann/nanoflann.hpp"
++#include <nanoflann.hpp>
+ 
+ struct XYZ {
+     float x;
+diff --git a/simple_trainer.cpp b/simple_trainer.cpp
+index 2da1704..d3695da 100644
+--- a/simple_trainer.cpp
++++ b/simple_trainer.cpp
+@@ -16,7 +16,7 @@
+ #include "rasterize_gaussians.hpp"
+ #include "constants.hpp"
+ #include "cv_utils.hpp"
+-#include "vendor/cxxopts.hpp"
++#include <cxxopts.hpp>
+ 
+ using namespace torch::indexing;
+ namespace fs = std::filesystem;
