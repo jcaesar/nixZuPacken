@@ -17,15 +17,10 @@
         };
       in rec {
         packages = {
-          opensplat = pkgs.callPackage ./opensplat.nix {};
+          opensplat = pkgs.callPackage ./opensplat {};
           opensplatWithCuda = packages.opensplat.override {useCuda = true;};
-          default = packages.opensplat;
-        };
-        devShells.cuda = pkgs.mkShell {
-          inputsFrom = [packages.opensplatWithCuda];
-        };
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [packages.opensplat];
+          licensed = pkgs.callPackage ./licensed {};
+          urlendec = pkgs.callPackage ./urlendec {};
         };
       }
     );

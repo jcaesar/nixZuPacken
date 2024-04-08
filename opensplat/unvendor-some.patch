@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 806c4f2..993dc4a 100644
+index 806c4f2..a40cbdd 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -126,7 +126,12 @@ target_include_directories(gsplat_cpu PRIVATE ${TORCH_INCLUDE_DIRS})
@@ -10,14 +10,35 @@ index 806c4f2..993dc4a 100644
 +target_include_directories(opensplat PRIVATE
 +    ${PROJECT_SOURCE_DIR}/vendor/glm
 +    ${PROJECT_SOURCE_DIR}/vendor/nanoflann
-+    ${PROJECT_SOURCE_DIR}/vendor 
++    ${PROJECT_SOURCE_DIR}/vendor
 +    ${GPU_INCLUDE_DIRS}
 +)
  target_link_libraries(opensplat PUBLIC ${STDPPFS_LIBRARY} ${GPU_LIBRARIES} ${GSPLAT_LIBS} ${TORCH_LIBRARIES} ${OpenCV_LIBS})
  if (NOT WIN32)
      target_link_libraries(opensplat PUBLIC pthread)
+diff --git a/gsplat.hpp b/gsplat.hpp
+index d427655..7525f45 100644
+--- a/gsplat.hpp
++++ b/gsplat.hpp
+@@ -1,12 +1,12 @@
+ #ifndef GSPLAT_H
+ #define GSPLAT_H
+ 
+-#include "vendor/gsplat/config.h"
++#include <gsplat/config.h>
+ 
+ #if defined(USE_HIP) || defined(USE_CUDA)
+-#include "vendor/gsplat/bindings.h"
++#include <gsplat/bindings.h>
+ #endif
+ 
+-#include "vendor/gsplat-cpu/bindings.h"
++#include <gsplat-cpu/bindings.h>
+ 
+ #endif
+\ No newline at end of file
 diff --git a/kdtree_tensor.hpp b/kdtree_tensor.hpp
-index d6f6015..f6ddf01 100644
+index d6f6015..4f602e3 100644
 --- a/kdtree_tensor.hpp
 +++ b/kdtree_tensor.hpp
 @@ -2,7 +2,7 @@
@@ -29,13 +50,6 @@ index d6f6015..f6ddf01 100644
  
  struct PointsTensor {
      torch::Tensor tensor;
-@@ -52,4 +52,4 @@ using KdTreeTensor = nanoflann::KDTreeSingleIndexAdaptor<
-     PointsTensor, 3, size_t
- >;
- 
--#endif
-\ No newline at end of file
-+#endif
 diff --git a/nerfstudio.cpp b/nerfstudio.cpp
 index 52264cc..f82d111 100644
 --- a/nerfstudio.cpp
@@ -49,7 +63,7 @@ index 52264cc..f82d111 100644
  #include "point_io.hpp"
  #include "cv_utils.hpp"
 diff --git a/nerfstudio.hpp b/nerfstudio.hpp
-index 9ceb352..7b67d5c 100644
+index 9ceb352..d4d05fc 100644
 --- a/nerfstudio.hpp
 +++ b/nerfstudio.hpp
 @@ -5,8 +5,8 @@
@@ -62,15 +76,8 @@ index 9ceb352..7b67d5c 100644
  
  using json = nlohmann::json;
  
-@@ -47,4 +47,4 @@ namespace ns{
- 
- 
- 
--#endif
-\ No newline at end of file
-+#endif
 diff --git a/opensfm.cpp b/opensfm.cpp
-index 5f7c53d..bca420f 100644
+index 5f7c53d..ad7a72e 100644
 --- a/opensfm.cpp
 +++ b/opensfm.cpp
 @@ -1,6 +1,6 @@
@@ -81,15 +88,8 @@ index 5f7c53d..bca420f 100644
  #include "opensfm.hpp"
  #include "point_io.hpp"
  #include "cv_utils.hpp"
-@@ -150,4 +150,4 @@ InputData inputDataFromOpenSfM(const std::string &projectRoot){
-     return ret;
- }
- 
--}
-\ No newline at end of file
-+}
 diff --git a/opensfm.hpp b/opensfm.hpp
-index 34c6e38..8edf0de 100644
+index 34c6e38..2b7863a 100644
 --- a/opensfm.hpp
 +++ b/opensfm.hpp
 @@ -6,8 +6,8 @@
@@ -102,13 +102,6 @@ index 34c6e38..8edf0de 100644
  
  using json = nlohmann::json;
  
-@@ -51,4 +51,4 @@ namespace osfm{
-     InputData inputDataFromOpenSfM(const std::string &projectRoot);
- }   
- 
--#endif
-\ No newline at end of file
-+#endif
 diff --git a/opensplat.cpp b/opensplat.cpp
 index 180e864..a6e9e74 100644
 --- a/opensplat.cpp
@@ -152,3 +145,21 @@ index 2da1704..d3695da 100644
  
  using namespace torch::indexing;
  namespace fs = std::filesystem;
+diff --git a/vendor/gsplat/helpers.cuh b/vendor/gsplat/helpers.cuh
+index 843ec52..d867f34 100644
+--- a/vendor/gsplat/helpers.cuh
++++ b/vendor/gsplat/helpers.cuh
+@@ -6,8 +6,8 @@
+ #include <cuda_runtime.h>
+ #endif
+ 
+-#include "../glm/glm/glm.hpp"
+-#include "../glm/glm/gtc/type_ptr.hpp"
++#include <glm/glm.hpp>
++#include <glm/gtc/type_ptr.hpp>
+ #include <iostream>
+ 
+ inline __device__ float ndc2pix(const float x, const float W, const float cx) {
+-- 
+2.44.0
+
