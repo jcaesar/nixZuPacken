@@ -15,23 +15,14 @@
           inherit system;
           config.allowUnfree = true;
         };
-        callPackage = pkgs.lib.callPackageWith packages;
-        packages =
-          pkgs
-          // {
-            gsplat = callPackage ./gsplat.nix {};
-            opensplat = callPackage ./opensplat.nix {};
-            opensplatWithCuda = packages.opensplat.override {gpuBackend = "CUDA";};
-            opensplatWithRocm = packages.opensplat.override {gpuBackend = "HIP";};
-            default = packages.opensplat;
-          };
       in rec {
-        inherit packages;
+        packages = {
+          opensplat = pkgs.callPackage ./opensplat.nix {};
+          opensplatWithCuda = packages.opensplat.override {useCuda = true;};
+          default = packages.opensplat;
+        };
         devShells.cuda = pkgs.mkShell {
           inputsFrom = [packages.opensplatWithCuda];
-        };
-        devShells.hip = pkgs.mkShell {
-          inputsFrom = [packages.opensplatWithRocm];
         };
         devShells.default = pkgs.mkShell {
           inputsFrom = [packages.opensplat];
