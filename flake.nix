@@ -21,6 +21,7 @@
           opensplatWithCuda = packages.opensplat.override {useCuda = true;};
           licensed = pkgs.callPackage ./licensed {};
           urlendec = pkgs.callPackage ./urlendec {};
+          gauzilla = pkgs.callPackage ./gauzilla {};
         };
       }
     );
