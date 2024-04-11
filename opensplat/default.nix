@@ -8,7 +8,7 @@ in
     stdenv,
     cmake,
     fetchFromGitHub,
-    libtorch-bin,
+    python3,
     opencv,
     nlohmann_json,
     nanoflann,
@@ -40,13 +40,15 @@ in
       '';
 
       nativeBuildInputs =
-        [cmake libtorch-bin opencv]
+        [cmake]
         ++ lib.optionals useCuda [
           cudaPackages.cuda_nvcc
         ];
 
       buildInputs =
         [
+          (python3.pkgs.torch.override { cudaSupport = useCuda; })
+          opencv
           nanoflann
           nlohmann_json
           glm
@@ -55,6 +57,7 @@ in
         ++ lib.optionals useCuda [
           cudaPackages.cuda_cudart
         ];
+      env.VERBOSE = "1";
 
       cmakeFlags =
         [
