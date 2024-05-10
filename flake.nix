@@ -22,6 +22,8 @@
           licensed = pkgs.callPackage ./licensed {};
           urlendec = pkgs.callPackage ./urlendec {};
           gauzilla = pkgs.callPackage ./gauzilla {};
+          legacyclonk = pkgs.callPackage ./legacyclonk {};
+          legacyclonkHeadless = pkgs.callPackage ./legacyclonk {engine = packages.legacyclonk.passthru.engine.override {headless = true;};};
         };
       }
     );
