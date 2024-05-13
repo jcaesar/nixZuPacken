@@ -1,5 +1,5 @@
 {
-  stdenv,
+  runCommand,
   fetchurl,
   lib,
   writeScriptBin,
@@ -10,22 +10,21 @@
 }: let
   getAsset = name: data: let
     src = fetchurl {inherit (data) url hash;};
-  in
-    stdenv.mkDerivation {
-      inherit src;
+    env = {
       name = "legacyclonk-asset-${name}";
-      dontUnpack = true;
       nativeBuildInputs = [unzip];
-      installPhase = ''
-        mkdir $out
-        ${data.script src}
-      '';
       meta = {
         license = [lib.licenses.unfreeRedistributable];
         maintainers = [lib.maintainers.jcaesar];
         inherit (data) homepage;
       };
     };
+    cmd = ''
+      mkdir $out
+      ${data.script src}
+    '';
+  in
+    runCommand "unpack-clonk-asset-${name}" env cmd;
 
   assets = lib.mapAttrs getAsset (import ./assets.nix);
 
@@ -40,10 +39,11 @@
   # patching around this gets pretty complicated,
   # so instead crate a directory that can be written to
   script = writeScriptBin "clonk" ''
-    rm -rf ~/.legacyclonk/.nix
-    mkdir -p ~/.legacyclonk/.nix
+    dir="''${XDG_CACHE_HOME:-"''${HOME:-"$(realpath ~)"}/.cache"}/nix-legacyclonk"
+    rm -rf "$dir"
+    mkdir -p "$dir"
+    cd "$dir"
 
-    cd ~/.legacyclonk/.nix
     mkdir Extra.c4g
     for f in ${assetPaths}; do
       if test "$(basename "$f")" == Extra.c4g; then

@@ -87,7 +87,8 @@ in
       description = "The LegacyClonk engine and the c4group command line tool.";
       license = [lib.licenses.isc];
       maintainers = [lib.maintainers.jcaesar];
-      platforms = lib.platforms.linux; # Should work on darwin too, but probably has a different set of dependencies.
+      # Should work on darwin too, but probably has a different set of dependencies.
+      platforms = lib.lists.intersectLists lib.platforms.linux lib.platforms.littleEndian;
       homepage = "https://clonkspot.org/lc-en";
       mainProgram = "clonk";
     };
