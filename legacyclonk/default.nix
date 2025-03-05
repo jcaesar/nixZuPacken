@@ -3,6 +3,7 @@
   fetchurl,
   lib,
   writeScriptBin,
+  runtimeShell,
   callPackage,
   unzip,
   engine ? callPackage ./engine.nix {},
@@ -39,6 +40,7 @@
   # patching around this gets pretty complicated,
   # so instead crate a directory that can be written to
   script = writeScriptBin "clonk" ''
+    #!${runtimeShell}
     dir="''${XDG_CACHE_HOME:-"''${HOME:-"$(realpath ~)"}/.cache"}/nix-legacyclonk"
     rm -rf "$dir"
     mkdir -p "$dir"
